@@ -52,3 +52,31 @@ promise.then(taskA).then(taskB).catch(onRejected);
 
 //非同期処理を並列で行う
 //Promise.all()
+const allTaskA = new Promise((resolve, reject) => {
+  setTimeout(function () {
+    console.log("taskA");
+    resolve();
+  }, 16);
+});
+
+const allTaskB = new Promise((resolve, reject) => {
+  setTimeout(function () {
+    console.log("taskB");
+    //resolve();
+    reject();
+  }, 10);
+});
+
+const before = new Date();
+Promise.all([allTaskA, allTaskB])
+  .then(() => {
+    const after = new Date();
+    const result = after.getTime() - before.getTime();
+    console.log(result);
+  })
+  .catch(() => {
+    console.log("error");
+  });
+//Promiseのいずれかでもエラーになった時点で他のPromiseの処理を待たずに終了させたい場合にはprocess.exit(1)など使えば良さそうですね。
+
+//Promise.race()
