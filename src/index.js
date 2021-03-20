@@ -80,3 +80,31 @@ Promise.all([allTaskA, allTaskB])
 //Promiseのいずれかでもエラーになった時点で他のPromiseの処理を待たずに終了させたい場合にはprocess.exit(1)など使えば良さそうですね。
 
 //Promise.race()
+//一つでもresolve, rejectが呼び出されたら、thenもしくはcatchが呼びされます。
+const raceTaskA = new Promise((resolve, reject) => {
+  setTimeout(function () {
+    console.log("taskA_race");
+    resolve();
+  }, 16);
+});
+
+const raceTaskB = new Promise((resolve, reject) => {
+  setTimeout(function () {
+    console.log("taskB_race");
+    resolve();
+    //rejectはallのときと同様
+  }, 1);
+});
+
+const before2 = new Date();
+Promise.race([raceTaskA, raceTaskB])
+  .then(() => {
+    const after = new Date();
+    const result = after.getTime() - before2.getTime();
+    console.log(result);
+  })
+  .catch(() => {
+    console.log("error_race");
+  });
+
+//逐次処理（直列処理）
