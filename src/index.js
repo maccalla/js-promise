@@ -10,3 +10,45 @@ document.getElementById("app").innerHTML = `
 `;
 
 //promise
+function asyncFunction() {
+  //Promiseオブジェクトを返す、処理成功時にはresolveが呼ばれる
+  return new Promise(function (resolve, reject) {
+    setTimeout(function () {
+      //成功
+      //resolve("Async Hello world");
+      //失敗
+      reject(new Error("Error"));
+    }, 16);
+  });
+}
+
+asyncFunction()
+  .then(function (value) {
+    //非同期処理成功
+    console.log(value); // => 'Async Hello world'
+  })
+  .catch(function (error) {
+    //非同期処理失敗
+    console.log(error);
+  });
+
+//メソッドチェーン
+function taskA() {
+  //onRejectedを読んで見る
+  //throw new Error("Error");
+  console.log("task:A");
+}
+
+function taskB() {
+  console.log("task:B");
+}
+
+function onRejected(error) {
+  console.log("error:" + error);
+}
+
+var promise = Promise.resolve();
+promise.then(taskA).then(taskB).catch(onRejected);
+
+//非同期処理を並列で行う
+//Promise.all()
