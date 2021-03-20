@@ -108,3 +108,84 @@ Promise.race([raceTaskA, raceTaskB])
   });
 
 //逐次処理（直列処理）
+Promise.resolve()
+  .then(() => {
+    return new Promise((resolve, reject) => {
+      setTimeout(function () {
+        console.log("taskA_tikuji");
+        resolve("taskA_tikuji death");
+      }, 16);
+    });
+  })
+  .then((value) => {
+    return new Promise((resolve, reject) => {
+      setTimeout(function () {
+        console.log(value);
+        console.log("taskB_tikuji");
+        resolve("taskB_tikuji death");
+      }, 16);
+    });
+  })
+  .then((value) => {
+    console.log("then");
+    console.log(value);
+  })
+  .catch((error) => {
+    console.log(error);
+  });
+
+//sequenceTasksメソッド
+//Promiseでの実行結果がそれぞれpushされるので最終的に後から結果の取得を行うこともできます。
+const value = "seq";
+const sequenceTasks = (tasks) => {
+  const recodeValue = (result, value) => {
+    result.push(value);
+    return result;
+  };
+  const pushValue = recodeValue.bind(null, []);
+  return tasks.reduce((promise, task) => {
+    return promise.then(task).then(pushValue);
+  }, Promise.resolve());
+};
+
+const promises = {
+  doTaskA: () => {
+    return seqTaskA().then();
+  },
+  doTaskB: () => {
+    return seqTaskB(value).then();
+  }
+};
+
+const seqTaskA = () => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      console.log("taskA_seq");
+      resolve("taskA_seq death");
+    }, 16);
+  });
+};
+
+const seqTaskB = (value) => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      console.log(value);
+      console.log("taskB_seq");
+      resolve("taskB_seq death");
+    }, 1);
+  });
+};
+
+const main = () => {
+  return sequenceTasks([promises.doTaskA, promises.doTaskB]);
+};
+
+main()
+  .then(() => {
+    console.log("then_seq");
+    console.log(value);
+    //taskAもしくはtaskBのエラーの場合に呼び出される
+  })
+  .catch((error) => {
+    console.log(error);
+  });
